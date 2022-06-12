@@ -5,7 +5,11 @@
 namespace leningrad {
 
 template <typename T> DiffValue<T> operator-(const DiffValue<T> &x) {
-    return x * -1;
+    T value = -x.value();
+    impl::Edge<T> edge{x.node, []() { return -1; }};
+    std::vector<impl::Edge<T>> edges{edge};
+    auto node = std::make_shared<impl::Node<T>>(value, edges);
+    return DiffValue<T>(node);
 }
 
 template <typename T>
@@ -13,7 +17,7 @@ DiffValue<T> operator+(const DiffValue<T> &lhs, const DiffValue<T> &rhs) {
     T value = lhs.value() + rhs.value();
 
     impl::Edge<T> lhsEdge{lhs.node, []() { return 1; }};
-    impl::Edge<T> rhsEdge{lhs.node, []() { return 1; }};
+    impl::Edge<T> rhsEdge{rhs.node, []() { return 1; }};
     std::vector<impl::Edge<T>> edges{lhsEdge, rhsEdge};
     auto node = std::make_shared<impl::Node<T>>(value, edges);
     return DiffValue<T>(node);
@@ -50,7 +54,7 @@ DiffValue<T> operator*(const DiffValue<T> &lhs, const DiffValue<T> &rhs) {
     T value = lhs.value() * rhs.value();
 
     impl::Edge<T> lhsEdge{lhs.node, [rhs]() { return rhs; }};
-    impl::Edge<T> rhsEdge{lhs.node, [lhs]() { return lhs; }};
+    impl::Edge<T> rhsEdge{rhs.node, [lhs]() { return lhs; }};
     std::vector<impl::Edge<T>> edges{lhsEdge, rhsEdge};
     auto node = std::make_shared<impl::Node<T>>(value, edges);
     return DiffValue<T>(node);
@@ -73,8 +77,8 @@ template <typename T>
 DiffValue<T> operator/(const DiffValue<T> &lhs, const DiffValue<T> &rhs) {
     T value = lhs.value() / rhs.value();
 
-    impl::Edge<T> lhsEdge{lhs.node, [rhs]() { return 1 / rhs; }};
-    impl::Edge<T> rhsEdge{lhs.node,
+    impl::Edge<T> lhsEdge{lhs.node, [rhs]() { return 1. / rhs; }};
+    impl::Edge<T> rhsEdge{rhs.node,
                           [lhs, rhs]() { return -lhs / (rhs * rhs); }};
     std::vector<impl::Edge<T>> edges{lhsEdge, rhsEdge};
     auto node = std::make_shared<impl::Node<T>>(value, edges);
@@ -83,7 +87,7 @@ DiffValue<T> operator/(const DiffValue<T> &lhs, const DiffValue<T> &rhs) {
 template <typename T> DiffValue<T> operator/(const DiffValue<T> &lhs, T rhs) {
     T value = lhs.value() / rhs;
 
-    impl::Edge<T> lhsEdge{lhs.node, [rhs]() { return 1 / rhs; }};
+    impl::Edge<T> lhsEdge{lhs.node, [rhs]() { return 1. / rhs; }};
     std::vector<impl::Edge<T>> edges{lhsEdge};
     auto node = std::make_shared<impl::Node<T>>(value, edges);
     return DiffValue<T>(node);
@@ -92,7 +96,7 @@ template <typename T> DiffValue<T> operator/(const DiffValue<T> &lhs, T rhs) {
 template <typename T> DiffValue<T> operator/(T lhs, const DiffValue<T> &rhs) {
     T value = lhs / rhs.value();
 
-    impl::Edge<T> rhsEdge{lhs.node,
+    impl::Edge<T> rhsEdge{rhs.node,
                           [lhs, rhs]() { return -lhs / (rhs * rhs); }};
     std::vector<impl::Edge<T>> edges{rhsEdge};
     auto node = std::make_shared<impl::Node<T>>(value, edges);

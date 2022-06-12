@@ -19,6 +19,7 @@ template <typename T> struct Edge {
 
 template <typename T> class Node {
 public:
+    Node() : value(), edges() {}
     explicit Node(T value) : value(value), edges() {}
     Node(T value, const std::vector<Edge<T>> &edges)
         : value(value), edges(edges) {}

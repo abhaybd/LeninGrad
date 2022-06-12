@@ -2,6 +2,7 @@
 
 #include "DiffValue.h"
 #include "DiffOpsImpl.h"
+#include "Derivative.h"
 
 namespace leningrad {
 using ddouble = DiffValue<double>;

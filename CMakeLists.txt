@@ -3,7 +3,7 @@ project(LeninGrad)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(playground test/playground.cpp)
+add_executable(playground test/playground.cpp test/DerivativeTest.cpp)
 
 #add_library(LeninGrad library.cpp)
 
@@ -19,5 +19,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Catch2)
 
-add_executable(tests test/DiffValueTest.cpp)
+add_executable(tests
+        test/DiffValueTest.cpp
+        test/DerivativeTest.cpp)
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
