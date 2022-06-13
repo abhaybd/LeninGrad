@@ -10,8 +10,7 @@ jobs:
         uses: actions/checkout@v1
       - name: Install dependencies from APT
         run: |
-          sudo apt update && sudo apt upgrade -y
-          sudo apt install -y build-essential
+          sudo apt install -y build-essential catch2
       - name: Build codebase
         run: |
           cd ${{ github.workspace }}
