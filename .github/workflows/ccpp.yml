@@ -10,7 +10,13 @@ jobs:
         uses: actions/checkout@v1
       - name: Install dependencies from APT
         run: |
-          sudo apt install -y build-essential catch2
+          sudo apt install -y build-essential
+      - name: Build Catch2
+        run: |
+          git clone -b v2.x --single-branch https://github.com/catchorg/Catch2.git
+          git checkout v2.13.9
+          cmake -Bbuild -H. -DBUILD_TESTING=OFF
+          sudo cmake --build build/ --target install
       - name: Build codebase
         run: |
           cd ${{ github.workspace }}
