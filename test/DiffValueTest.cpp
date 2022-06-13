@@ -5,16 +5,32 @@
 #include "../src/Core.h"
 
 using namespace leningrad;
+using namespace Catch::literals;
 
 TEST_CASE("Test DiffValue Addition", "[DiffValue][DiffOp]") {
     ddouble a = 4;
     ddouble b = 3;
     ddouble c = a + b;
-    REQUIRE((a + b).value() == 7);
+    REQUIRE(c.value() == 7);
+    REQUIRE((a + 3).value() == 7);
+    REQUIRE((3 + a).value() == 7);
+    REQUIRE((4.f + b).value() == 7);
+    REQUIRE((b + 4.f).value() == 7);
     REQUIRE((a + 3.).value() == 7);
     REQUIRE((3. + a).value() == 7);
-    REQUIRE((4. + b).value() == 7);
-    REQUIRE((b + 4.).value() == 7);
+}
+
+TEST_CASE("Test DiffValue Multiplication", "[DiffValue][DiffOp]") {
+    ddouble a = 4;
+    ddouble b = 3;
+    ddouble c = a * b;
+    REQUIRE(c.value() == 12_a);
+    REQUIRE((a * 3).value() == 12_a);
+    REQUIRE((3 * a).value() == 12_a);
+    REQUIRE((4.f * b).value() == 12_a);
+    REQUIRE((b * 4.f).value() == 12_a);
+    REQUIRE((a * 3.).value() == 12_a);
+    REQUIRE((3. * a).value() == 12_a);
 }
 
 TEST_CASE("DiffValue Arithmetic Benchmark", "[DiffValue][Benchmark]") {

@@ -29,7 +29,7 @@ public:
         : value(value), edges(edges) {}
 
     Node(T value, const std::vector<Edge<T>> &&edges)
-        : value(value), edges(std::move(edges)) {}
+        : value(value), edges(edges) {}
 
     const T value;
     const std::vector<Edge<T>> edges;
