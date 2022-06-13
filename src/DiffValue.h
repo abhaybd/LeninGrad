@@ -5,7 +5,6 @@
 #include <type_traits>
 
 #include "ComputationGraph.h"
-#include "DiffArithmetic.h"
 
 namespace leningrad {
 
@@ -15,6 +14,11 @@ template <typename T> class DerivativeResult;
 
 template <typename T>
 DerivativeResult<T> differentiate(DiffValue<T> value, unsigned int order = 1);
+
+namespace impl {
+template <typename T> std::shared_ptr<impl::Node<T>> getDiffValueNode(const DiffValue<T> &value);
+template <typename T> DiffValue<T> createDiffValueFromNode(const std::shared_ptr<Node<T>> &node);
+} // namespace impl
 
 template <typename T> class DiffValue {
     static_assert(std::is_floating_point<T>::value);
@@ -68,7 +72,7 @@ public:
     }
 
 private:
-    explicit DiffValue(const std::shared_ptr<impl::Node<T>> node)
+    explicit DiffValue(const std::shared_ptr<impl::Node<T>> &node)
         : node(node) {}
     std::shared_ptr<impl::Node<T>> node;
 
@@ -76,17 +80,20 @@ private:
                                                 unsigned int order);
     friend class DerivativeResult<T>;
 
-    friend DiffValue operator-<T>(const DiffValue &x);
+    friend std::shared_ptr<impl::Node<T>> impl::getDiffValueNode<T>(const DiffValue<T> &value);
 
-    friend DiffValue operator+<T>(const DiffValue &lhs, const DiffValue &rhs);
-    friend DiffValue operator+<T>(const DiffValue &lhs, T rhs);
-    friend DiffValue operator-<T>(const DiffValue &lhs, const DiffValue &rhs);
-    friend DiffValue operator-<T>(const DiffValue &lhs, T rhs);
-    friend DiffValue operator-<T>(T lhs, const DiffValue<T> &rhs);
-    friend DiffValue operator*<T>(const DiffValue &lhs, const DiffValue &rhs);
-    friend DiffValue operator*<T>(const DiffValue &lhs, T rhs);
-    friend DiffValue operator/<T>(const DiffValue &lhs, const DiffValue &rhs);
-    friend DiffValue operator/<T>(const DiffValue &lhs, T rhs);
-    friend DiffValue operator/<T>(T lhs, const DiffValue &rhs);
+    friend DiffValue
+    impl::createDiffValueFromNode<T>(const std::shared_ptr<impl::Node<T>> &node);
 };
+
+namespace impl {
+template <typename T> std::shared_ptr<Node<T>> getDiffValueNode(const DiffValue<T> &value) {
+    return value.node;
+}
+
+template <typename T>
+DiffValue<T> createDiffValueFromNode(const std::shared_ptr<Node<T>> &node) {
+    return DiffValue<T>(node);
+}
+} // namespace impl
 } // namespace leningrad

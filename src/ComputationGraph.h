@@ -4,8 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include <iostream>
-
 namespace leningrad {
 template <typename T> class DiffValue;
 }
@@ -28,14 +26,10 @@ public:
     Node() : value(), edges() {}
     explicit Node(T value) : value(value), edges() {}
     Node(T value, const std::vector<Edge<T>> &edges)
-        : value(value), edges(edges) {
-//        std::cout << "lvalue pass"<<std::endl;
-    }
+        : value(value), edges(edges) {}
 
     Node(T value, const std::vector<Edge<T>> &&edges)
-        : value(value), edges(std::move(edges)) {
-//        std::cout << "xvalue pass"<<std::endl;
-    }
+        : value(value), edges(std::move(edges)) {}
 
     const T value;
     const std::vector<Edge<T>> edges;

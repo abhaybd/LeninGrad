@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Derivative.h"
-#include "DiffArithmeticImpl.h"
+#include "DiffArithmetic.h"
 #include "DiffValue.h"
 
 namespace leningrad {
