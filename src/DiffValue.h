@@ -1,11 +1,11 @@
 #pragma once
 
 #include <memory>
-#include <type_traits>
 #include <string>
+#include <type_traits>
 
 #include "ComputationGraph.h"
-#include "DiffOps.h"
+#include "DiffArithmetic.h"
 
 namespace leningrad {
 
@@ -14,7 +14,7 @@ template <typename T> class DiffValue;
 template <typename T> class DerivativeResult;
 
 template <typename T>
-DerivativeResult<T> differentiate(DiffValue<T> value, unsigned int order=1);
+DerivativeResult<T> differentiate(DiffValue<T> value, unsigned int order = 1);
 
 template <typename T> class DiffValue {
     static_assert(std::is_floating_point<T>::value);
@@ -31,12 +31,49 @@ public:
         *this = *this + rhs;
         return *this;
     }
+
+    DiffValue &operator+=(T rhs) {
+        *this = *this + rhs;
+        return *this;
+    }
+
+    DiffValue &operator-=(const DiffValue &rhs) {
+        *this = *this - rhs;
+        return *this;
+    }
+
+    DiffValue &operator-=(T rhs) {
+        *this = *this - rhs;
+        return *this;
+    }
+
+    DiffValue &operator*=(const DiffValue &rhs) {
+        *this = *this * rhs;
+        return *this;
+    }
+
+    DiffValue &operator*=(T rhs) {
+        *this = *this * rhs;
+        return *this;
+    }
+
+    DiffValue &operator/=(const DiffValue &rhs) {
+        *this = *this / rhs;
+        return *this;
+    }
+
+    DiffValue &operator/=(T rhs) {
+        *this = *this / rhs;
+        return *this;
+    }
+
 private:
     explicit DiffValue(const std::shared_ptr<impl::Node<T>> node)
         : node(node) {}
     std::shared_ptr<impl::Node<T>> node;
 
-    friend DerivativeResult<T> differentiate<T>(DiffValue value, unsigned int order);
+    friend DerivativeResult<T> differentiate<T>(DiffValue value,
+                                                unsigned int order);
     friend class DerivativeResult<T>;
 
     friend DiffValue operator-<T>(const DiffValue &x);
@@ -45,6 +82,7 @@ private:
     friend DiffValue operator+<T>(const DiffValue &lhs, T rhs);
     friend DiffValue operator-<T>(const DiffValue &lhs, const DiffValue &rhs);
     friend DiffValue operator-<T>(const DiffValue &lhs, T rhs);
+    friend DiffValue operator-<T>(T lhs, const DiffValue<T> &rhs);
     friend DiffValue operator*<T>(const DiffValue &lhs, const DiffValue &rhs);
     friend DiffValue operator*<T>(const DiffValue &lhs, T rhs);
     friend DiffValue operator/<T>(const DiffValue &lhs, const DiffValue &rhs);

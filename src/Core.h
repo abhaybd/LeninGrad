@@ -1,8 +1,8 @@
 #pragma once
 
-#include "DiffValue.h"
-#include "DiffOpsImpl.h"
 #include "Derivative.h"
+#include "DiffArithmeticImpl.h"
+#include "DiffValue.h"
 
 namespace leningrad {
 using ddouble = DiffValue<double>;
