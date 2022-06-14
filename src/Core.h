@@ -2,6 +2,8 @@
 
 #include "Derivative.h"
 #include "DiffArithmetic.h"
+#include "DiffComparison.h"
+#include "DiffOps.h"
 #include "DiffValue.h"
 
 namespace leningrad {

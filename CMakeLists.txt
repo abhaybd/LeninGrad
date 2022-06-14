@@ -18,5 +18,6 @@ FetchContent_MakeAvailable(Catch2)
 
 add_executable(tests
         test/ArithmeticTest.cpp
-        test/DerivativeTest.cpp)
+        test/DerivativeTest.cpp
+        test/ComparisonTest.cpp)
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)

@@ -31,10 +31,9 @@ private:
 };
 
 template <typename T>
-DerivativeResult<T> differentiate(DiffValue<T> value, unsigned int order = 1) {
-    assert(order > 0 && "Cannot take 0-order derivative!");
-
-    std::list<std::shared_ptr<impl::Node<T>>> fringe{impl::getDiffValueNode(value)};
+DerivativeResult<T> differentiate(const DiffValue<T> &value) {
+    std::list<std::shared_ptr<impl::Node<T>>> fringe{
+        impl::getDiffValueNode(value)};
     std::unordered_map<std::shared_ptr<impl::Node<T>>, DiffValue<T>>
         derivativeMap;
     derivativeMap.insert({impl::getDiffValueNode(value), 1.0});
@@ -51,6 +50,16 @@ DerivativeResult<T> differentiate(DiffValue<T> value, unsigned int order = 1) {
         }
     }
     return DerivativeResult<T>(derivativeMap);
+}
+
+template <typename T>
+DiffValue<T> differentiate(const DiffValue<T> &value, const DiffValue<T> &x,
+                           unsigned int order) {
+    DiffValue<T> derivative = value;
+    for (int i = 0; i < order; i++) {
+        derivative = differentiate(value).wrt(x);
+    }
+    return derivative;
 }
 
 } // namespace leningrad
