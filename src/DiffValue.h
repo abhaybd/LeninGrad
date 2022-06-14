@@ -8,13 +8,6 @@
 
 namespace leningrad {
 
-template <typename T> class DiffValue;
-
-template <typename T> class DerivativeResult;
-
-template <typename T>
-DerivativeResult<T> differentiate(DiffValue<T> value, unsigned int order = 1);
-
 namespace impl {
 template <typename T> std::shared_ptr<impl::Node<T>> getDiffValueNode(const DiffValue<T> &value);
 template <typename T> DiffValue<T> createDiffValueFromNode(const std::shared_ptr<Node<T>> &node);
@@ -75,10 +68,6 @@ private:
     explicit DiffValue(const std::shared_ptr<impl::Node<T>> &node)
         : node(node) {}
     std::shared_ptr<impl::Node<T>> node;
-
-    friend DerivativeResult<T> differentiate<T>(DiffValue value,
-                                                unsigned int order);
-    friend class DerivativeResult<T>;
 
     friend std::shared_ptr<impl::Node<T>> impl::getDiffValueNode<T>(const DiffValue<T> &value);
 

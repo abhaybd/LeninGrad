@@ -16,12 +16,13 @@ public:
         : derivativeMap(derivativeMap) {}
 
     DiffValue<T> wrt(const DiffValue<T> &value) {
-        auto itr = derivativeMap.find(value.node);
+        auto itr = derivativeMap.find(impl::getDiffValueNode(value));
         return itr != derivativeMap.end() ? itr->second : 0;
     }
 
     bool hasDerivative(const DiffValue<T> &value) {
-        return derivativeMap.find(value.node) != derivativeMap.end();
+        return derivativeMap.find(impl::getDiffValueNode(value)) !=
+               derivativeMap.end();
     }
 
 private:
@@ -30,13 +31,13 @@ private:
 };
 
 template <typename T>
-DerivativeResult<T> differentiate(DiffValue<T> value, unsigned int order) {
+DerivativeResult<T> differentiate(DiffValue<T> value, unsigned int order = 1) {
     assert(order > 0 && "Cannot take 0-order derivative!");
 
-    std::list<std::shared_ptr<impl::Node<T>>> fringe{value.node};
+    std::list<std::shared_ptr<impl::Node<T>>> fringe{impl::getDiffValueNode(value)};
     std::unordered_map<std::shared_ptr<impl::Node<T>>, DiffValue<T>>
         derivativeMap;
-    derivativeMap.insert({value.node, 1.0});
+    derivativeMap.insert({impl::getDiffValueNode(value), 1.0});
     while (!fringe.empty()) {
         auto node = fringe.front();
         fringe.pop_front();
