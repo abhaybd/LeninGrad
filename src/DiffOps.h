@@ -50,8 +50,9 @@ DiffValue<T> log(U base, const DiffValue<T> &x) {
     T value = std::log(x.value()) / std::log(base);
 
     std::vector<impl::Edge<T>> edges;
-    edges.emplace_back(impl::getDiffValueNode(x),
-                       [x]() { return static_cast<T>(1) / x; });
+    edges.emplace_back(impl::getDiffValueNode(x), [base, x]() {
+        return static_cast<T>(1) / (std::log(base) * x);
+    });
     auto node = std::make_shared<impl::Node<T>>(value, std::move(edges));
     return impl::createDiffValueFromNode(node);
 }
@@ -72,7 +73,8 @@ template <typename T> DiffValue<T> sqrt(const DiffValue<T> &x) {
     T value = std::sqrt(x.value());
 
     std::vector<impl::Edge<T>> edges;
-    edges.emplace_back(impl::getDiffValueNode(x), [x]() { return 1 / (2 * sqrt(x)); });
+    edges.emplace_back(impl::getDiffValueNode(x),
+                       [x]() { return 1 / (2 * sqrt(x)); });
     auto node = std::make_shared<impl::Node<T>>(value, std::move(edges));
     return impl::createDiffValueFromNode(node);
 }
@@ -103,9 +105,8 @@ DiffValue<T> pow(const DiffValue<T> &lhs, U rhs) {
     if (rhs == 0) {
         edges.emplace_back(impl::getDiffValueNode(lhs), []() { return 0; });
     } else {
-        edges.emplace_back(impl::getDiffValueNode(lhs), [lhs, rhs]() {
-            return pow(lhs, rhs - 1) * rhs;
-        });
+        edges.emplace_back(impl::getDiffValueNode(lhs),
+                           [lhs, rhs]() { return pow(lhs, rhs - 1) * rhs; });
     }
     auto node = std::make_shared<impl::Node<T>>(value, std::move(edges));
     return impl::createDiffValueFromNode(node);
@@ -316,8 +317,9 @@ DiffValue<T> copysign(const DiffValue<T> &mag, const DiffValue<T> &sgn) {
     T value = std::copysign(mag.value(), sgn.value());
 
     std::vector<impl::Edge<T>> edges;
-    edges.emplace_back(impl::getDiffValueNode(mag),
-                       [sgn]() { return std::signbit(sgn.value()) ? -1 : 1; });
+    edges.emplace_back(impl::getDiffValueNode(mag), [sgn, mag]() {
+        return std::signbit(sgn.value()) == std::signbit(mag.value()) ? 1 : -1;
+    });
     auto node = std::make_shared<impl::Node<T>>(value, std::move(edges));
     return impl::createDiffValueFromNode(node);
 }
