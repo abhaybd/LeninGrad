@@ -14,7 +14,7 @@ template <typename T> DiffValue<T> abs(const DiffValue<T> &x) {
 
     std::vector<impl::Edge<T>> edges;
     edges.emplace_back(impl::getDiffValueNode(x),
-                       [x]() { return x >= 0 ? 1 : 0; });
+                       [x]() { return x >= 0 ? 1 : -1; });
     auto node = std::make_shared<impl::Node<T>>(value, std::move(edges));
     return impl::createDiffValueFromNode(node);
 }
@@ -69,10 +69,10 @@ template <typename T> DiffValue<T> log2(const DiffValue<T> &x) {
 }
 
 template <typename T> DiffValue<T> sqrt(const DiffValue<T> &x) {
-    T value = std::sqrt(x);
+    T value = std::sqrt(x.value());
 
     std::vector<impl::Edge<T>> edges;
-    edges.emplace_back(impl::getDiffValueNode(x), [x]() { 1 / (2 * sqrt(x)); });
+    edges.emplace_back(impl::getDiffValueNode(x), [x]() { return 1 / (2 * sqrt(x)); });
     auto node = std::make_shared<impl::Node<T>>(value, std::move(edges));
     return impl::createDiffValueFromNode(node);
 }
@@ -86,7 +86,7 @@ DiffValue<T> pow(const DiffValue<T> &lhs, const DiffValue<T> &rhs) {
         edges.emplace_back(impl::getDiffValueNode(lhs), []() { return 0; });
     } else {
         edges.emplace_back(impl::getDiffValueNode(lhs), [lhs, rhs]() {
-            pow(lhs, rhs - static_cast<T>(1)) * rhs;
+            return pow(lhs, rhs - static_cast<T>(1)) * rhs;
         });
     }
     edges.emplace_back(impl::getDiffValueNode(rhs),
@@ -97,14 +97,14 @@ DiffValue<T> pow(const DiffValue<T> &lhs, const DiffValue<T> &rhs) {
 
 template <typename T, typename U>
 DiffValue<T> pow(const DiffValue<T> &lhs, U rhs) {
-    T value = rhs.value() == 0 ? 1 : std::pow(lhs.value(), rhs);
+    T value = rhs == 0 ? 1 : std::pow(lhs.value(), rhs);
 
     std::vector<impl::Edge<T>> edges;
     if (rhs == 0) {
         edges.emplace_back(impl::getDiffValueNode(lhs), []() { return 0; });
     } else {
         edges.emplace_back(impl::getDiffValueNode(lhs), [lhs, rhs]() {
-            pow(lhs, rhs - static_cast<T>(1)) * rhs;
+            return pow(lhs, rhs - 1) * rhs;
         });
     }
     auto node = std::make_shared<impl::Node<T>>(value, std::move(edges));
@@ -117,9 +117,13 @@ DiffValue<T> pow(U lhs, const DiffValue<T> &rhs) {
 
     std::vector<impl::Edge<T>> edges;
     edges.emplace_back(impl::getDiffValueNode(rhs),
-                       [lhs, rhs]() { return log(lhs) * pow(lhs, rhs); });
+                       [lhs, rhs]() { return std::log(lhs) * pow(lhs, rhs); });
     auto node = std::make_shared<impl::Node<T>>(value, std::move(edges));
     return impl::createDiffValueFromNode(node);
+}
+
+template <typename T> DiffValue<T> square(const DiffValue<T> x) {
+    return pow(x, 2);
 }
 
 template <typename T>
@@ -204,7 +208,7 @@ template <typename T> DiffValue<T> asin(const DiffValue<T> &x) {
 }
 
 template <typename T> DiffValue<T> atan(const DiffValue<T> &x) {
-    T value = std::atan(x);
+    T value = std::atan(x.value());
 
     std::vector<impl::Edge<T>> edges;
     edges.emplace_back(impl::getDiffValueNode(x),
@@ -245,7 +249,7 @@ template <typename T> DiffValue<T> cosh(const DiffValue<T> &x) {
 }
 
 template <typename T> DiffValue<T> sinh(const DiffValue<T> &x) {
-    T value = (std::exp(x.value()) + std::exp(-x.value())) / static_cast<T>(2);
+    T value = (std::exp(x.value()) - std::exp(-x.value())) / static_cast<T>(2);
 
     std::vector<impl::Edge<T>> edges;
     edges.emplace_back(impl::getDiffValueNode(x), [x]() { return cosh(x); });
