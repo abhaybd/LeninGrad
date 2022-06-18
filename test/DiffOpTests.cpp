@@ -163,5 +163,40 @@ TEST_CASE("Test bivariate functions over R2", "[DiffOp]") {
 }
 
 TEST_CASE("Test pow", "[DiffOp]") {
-    // TODO: implement test
+    std::vector<double> xs{1, 2.5, 3};
+    std::vector<double> ys{-1.5, -1, 0, 1, 1.5};
+
+    std::vector<std::pair<double, double>> points;
+    for (double x : xs) {
+        for (double y : ys) {
+            points.emplace_back(x, y);
+        }
+    }
+
+    points.emplace_back(0, 1);
+    points.emplace_back(0, 1.5);
+
+    for (auto &pair : points) {
+        double x_ = pair.first;
+        double y_ = pair.second;
+        ddouble x(x_);
+        ddouble y(y_);
+        ddouble z = pow(x, y);
+
+        auto dz = differentiate(z);
+        if (x != 0) {
+            INFO("Test dzdx at (x,y)=(" << x_ << ", " << y_ << ")")
+            double dzdx = dz.wrt(x).value();
+            double dzdxNumerical = numericalDifferentiate(
+                [y_](double p) { return std::pow(p, y_); }, x_);
+            REQUIRE(dzdx == Approx(dzdxNumerical).margin(1e-4));
+        }
+        {
+            INFO("Test dzdy at (x,y)=(" << x_ << ", " << y_ << ")")
+            double dzdy = dz.wrt(y).value();
+            double dzdyNumerical = numericalDifferentiate(
+                [x_](double p) { return std::pow(x_, p); }, y_);
+            REQUIRE(dzdy == Approx(dzdyNumerical).margin(1e-4));
+        }
+    }
 }

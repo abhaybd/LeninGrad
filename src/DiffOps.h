@@ -91,8 +91,12 @@ DiffValue<T> pow(const DiffValue<T> &lhs, const DiffValue<T> &rhs) {
             return pow(lhs, rhs - static_cast<T>(1)) * rhs;
         });
     }
-    edges.emplace_back(impl::getDiffValueNode(rhs),
-                       [lhs, rhs]() { return log(lhs) * pow(lhs, rhs); });
+    if (lhs.value() == 0) {
+        edges.emplace_back(impl::getDiffValueNode(rhs), []() { return 0; });
+    } else {
+        edges.emplace_back(impl::getDiffValueNode(rhs),
+                           [lhs, rhs]() { return log(lhs) * pow(lhs, rhs); });
+    }
     auto node = std::make_shared<impl::Node<T>>(value, std::move(edges));
     return impl::createDiffValueFromNode(node);
 }
