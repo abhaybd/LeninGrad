@@ -200,3 +200,32 @@ TEST_CASE("Test pow", "[DiffOp]") {
         }
     }
 }
+
+TEST_CASE("Test log") {
+    std::vector<double> xs{0.5, 2, M_E, M_PI};
+    std::vector<double> ys{0.1, 1, M_PI, 5.3};
+
+    for (double x_ : xs) {
+        for (double y_ : ys) {
+            ddouble x(x_);
+            ddouble y(y_);
+            ddouble z = log(x, y);
+
+            auto dz = differentiate(z);
+            {
+                INFO("Test dzdx at (x,y)=(" << x_ << ", " << y_ << ")")
+                double dzdx = dz.wrt(x).value();
+                double dzdxNumerical = numericalDifferentiate(
+                    [y_](double p) { return std::log(y_) / std::log(p); }, x_);
+                REQUIRE(dzdx == Approx(dzdxNumerical).margin(1e-4));
+            }
+            {
+                INFO("Test dzdy at (x,y)=(" << x_ << ", " << y_ << ")")
+                double dzdy = dz.wrt(y).value();
+                double dzdyNumerical = numericalDifferentiate(
+                    [x_](double p) { return std::log(p) / std::log(x_); }, y_);
+                REQUIRE(dzdy == Approx(dzdyNumerical).margin(1e-4));
+            }
+        }
+    }
+}

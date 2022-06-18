@@ -27,8 +27,9 @@ DiffValue<T> log(const DiffValue<T> &base, const DiffValue<T> &x) {
     edges.emplace_back(impl::getDiffValueNode(base), [base, x]() {
         return -log(base, x) / (base * log(base));
     });
-    edges.emplace_back(impl::getDiffValueNode(x),
-                       [x]() { return static_cast<T>(1) / x; });
+    edges.emplace_back(impl::getDiffValueNode(x), [x, base]() {
+        return static_cast<T>(1) / (log(base) * x);
+    });
     auto node = std::make_shared<impl::Node<T>>(value, std::move(edges));
     return impl::createDiffValueFromNode(node);
 }
