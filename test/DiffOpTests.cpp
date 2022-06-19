@@ -17,6 +17,8 @@ double numericalDifferentiate(const std::function<double(double)> &fn,
     return (fn(x + eps) - fn(x - eps)) / (2 * eps);
 }
 
+// TODO: add tests for float
+
 TEST_CASE("Test univariate funcs over R", "[DiffOp]") {
     std::vector<std::tuple<std::string, std::function<ddouble(const ddouble &)>,
                            std::function<double(double)>>>
@@ -67,6 +69,7 @@ TEST_CASE("Test univariate funcs over R", "[DiffOp]") {
             double dydx = differentiate(y).wrt(x).value();
             double dydxTrue = numericalDifferentiate(fn, p);
             INFO("Testing function: " << name << " at x=" << p);
+            REQUIRE(y.value() == Approx(fn(p)));
             REQUIRE(dydx == Approx(dydxTrue).margin(1e-4));
         }
     }
@@ -100,6 +103,7 @@ TEST_CASE("Test univariate funcs over R+", "[DiffOp]") {
             double dydx = differentiate(y).wrt(x).value();
             double dydxTrue = numericalDifferentiate(fn, p);
             INFO("Testing function: " << name << " at x=" << p);
+            REQUIRE(y.value() == Approx(fn(p)));
             REQUIRE(dydx == Approx(dydxTrue));
         }
     }
@@ -109,14 +113,20 @@ TEST_CASE("Test asin and acos", "[DiffOp]") {
     std::vector<double> points{-0.9, -0.5, 0, 0.5, 0.9};
     for (double p : points) {
         ddouble x(p);
-        INFO("Testing acos at x=" << p);
-        REQUIRE((differentiate(acos(x)).wrt(x) ==
-                 Approx(numericalDifferentiate(
-                     [](double x) { return std::acos(x); }, p))));
-        INFO("Testing asin at x=" << p);
-        REQUIRE((differentiate(asin(x)).wrt(x) ==
-                 Approx(numericalDifferentiate(
-                     [](double x) { return std::asin(x); }, p))));
+        {
+            INFO("Testing acos at x=" << p);
+            REQUIRE(acos(x).value() == Approx(std::acos(p)));
+            REQUIRE((differentiate(acos(x)).wrt(x) ==
+                     Approx(numericalDifferentiate(
+                         [](double x) { return std::acos(x); }, p))));
+        }
+        {
+            INFO("Testing asin at x=" << p);
+            REQUIRE(asin(x).value() == Approx(std::asin(p)));
+            REQUIRE((differentiate(asin(x)).wrt(x) ==
+                     Approx(numericalDifferentiate(
+                         [](double x) { return std::asin(x); }, p))));
+        }
     }
 }
 
@@ -152,12 +162,22 @@ TEST_CASE("Test bivariate functions over R2", "[DiffOp]") {
                 [&](double x) { return fn(x, p.second); }, p.first);
             double dzdyNumerical = numericalDifferentiate(
                 [&](double y) { return fn(p.first, y); }, p.second);
-            INFO("Testing dzdx of " << name << " at (x,y)=(" << p.first << ", "
-                                    << p.second << ")");
-            REQUIRE(dzdx == Approx(dzdxNumerical).margin(1e-4));
-            INFO("Testing dzdy of " << name << " at (x,y)=(" << p.first << ", "
-                                    << p.second << ")");
-            REQUIRE(dzdy == Approx(dzdyNumerical).margin(1e-4));
+            {
+                INFO("Testing value of " << name << " at (x,y)=(" << p.first << ", "
+                                         << p.second << ")");
+                REQUIRE(z.value() == Approx(fn(p.first, p.second)));
+            }
+            {
+                INFO("Testing dzdx of " << name << " at (x,y)=(" << p.first << ", "
+                                        << p.second << ")");
+                REQUIRE(dzdx == Approx(dzdxNumerical).margin(1e-4));
+            }
+            {
+                INFO("Testing dzdy of " << name << " at (x,y)=(" << p.first << ", "
+                                        << p.second << ")");
+                REQUIRE(dzdy == Approx(dzdyNumerical).margin(1e-4));
+            }
+
         }
     }
 }
@@ -184,6 +204,10 @@ TEST_CASE("Test pow", "[DiffOp]") {
         ddouble z = pow(x, y);
 
         auto dz = differentiate(z);
+        {
+            INFO("Test value at (x,y)=" << x_ << ", " << y_ << ")");
+            REQUIRE(z.value() == Approx(std::pow(x_, y_)));
+        }
         if (x != 0) {
             INFO("Test dzdx at (x,y)=(" << x_ << ", " << y_ << ")")
             double dzdx = dz.wrt(x).value();
@@ -212,6 +236,10 @@ TEST_CASE("Test log") {
             ddouble z = log(x, y);
 
             auto dz = differentiate(z);
+            {
+                INFO("Test value at (x,y)=" << x_ << ", " << y_ << ")");
+                REQUIRE(z.value() == Approx(std::log(y_) / std::log(x_)));
+            }
             {
                 INFO("Test dzdx at (x,y)=(" << x_ << ", " << y_ << ")")
                 double dzdx = dz.wrt(x).value();

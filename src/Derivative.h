@@ -2,6 +2,7 @@
 
 #include "DiffValue.h"
 
+#include <initializer_list>
 #include <list>
 #include <memory>
 #include <unordered_map>
@@ -57,7 +58,23 @@ DiffValue<T> differentiate(const DiffValue<T> &value, const DiffValue<T> &x,
                            unsigned int order) {
     DiffValue<T> derivative = value;
     for (int i = 0; i < order; i++) {
-        derivative = differentiate(value).wrt(x);
+        derivative = differentiate(derivative).wrt(x);
+    }
+    return derivative;
+}
+
+template <typename T>
+DiffValue<T> differentiate(const DiffValue<T> &value,
+                           const std::initializer_list<DiffValue<T>> &wrt) {
+    return differentiate(value, wrt.begin(), wrt.end());
+}
+
+template <typename T, typename It>
+DiffValue<T> differentiate(const DiffValue<T> &value, const It &wrtBegin,
+                           const It &wrtEnd) {
+    DiffValue<T> derivative = value;
+    for (auto it = wrtBegin; it != wrtEnd; it++) {
+        derivative = differentiate(derivative).wrt(*it);
     }
     return derivative;
 }

@@ -75,6 +75,10 @@ private:
     impl::createDiffValueFromNode<T>(const std::shared_ptr<impl::Node<T>> &node);
 };
 
+template <typename T> std::ostream &operator<<(std::ostream &ostream, const DiffValue<T> &value) {
+    return ostream << value.value();
+}
+
 namespace impl {
 template <typename T> std::shared_ptr<Node<T>> getDiffValueNode(const DiffValue<T> &value) {
     return value.node;

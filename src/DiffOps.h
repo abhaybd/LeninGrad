@@ -278,7 +278,7 @@ template <typename T> DiffValue<T> acosh(const DiffValue<T> &x) {
 }
 
 template <typename T> DiffValue<T> asinh(const DiffValue<T> &x) {
-    T value = std::acosh(x.value());
+    T value = std::asinh(x.value());
 
     std::vector<impl::Edge<T>> edges;
     edges.emplace_back(impl::getDiffValueNode(x),
