@@ -1,7 +1,9 @@
 #pragma once
 
 #include <functional>
+#include <list>
 #include <memory>
+#include <ostream>
 #include <vector>
 
 namespace leningrad {
@@ -34,4 +36,25 @@ public:
     const T value;
     const std::vector<Edge<T>> edges;
 };
+
+template <typename T>
+void printComputationGraphCSV(std::ostream &ostream,
+                              std::shared_ptr<Node<T>> node_) {
+    std::list<std::shared_ptr<Node<T>>> fringe;
+    fringe.push_back(node_);
+
+    ostream << "FromID,ToID,FromVal,ToVal,EdgeVal\n";
+    while (!fringe.empty()) {
+        auto node = fringe.front();
+        fringe.pop_front();
+        for (const impl::Edge<T> &edge : node->edges) {
+            auto next = edge.to;
+            DiffValue<T> derivative = edge.derivativeFn();
+            fringe.push_back(next);
+            ostream << node.get() << "," << next.get() << "," << node->value
+                    << "," << next->value << "," << derivative.value()
+                    << "\n";
+        }
+    }
+}
 } // namespace leningrad::impl
