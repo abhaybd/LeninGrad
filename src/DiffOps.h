@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "ComputationGraph.h"
+#include "DiffArithmetic.h"
 #include "DiffValue.h"
 
 namespace leningrad {
@@ -122,14 +123,19 @@ DiffValue<T> pow(U lhs, const DiffValue<T> &rhs) {
     T value = rhs.value() == 0 ? 1 : std::pow(lhs, rhs.value());
 
     std::vector<impl::Edge<T>> edges;
-    edges.emplace_back(impl::getDiffValueNode(rhs),
-                       [lhs, rhs]() { return std::log(lhs) * pow(lhs, rhs); });
+    if (lhs == 0) {
+        edges.emplace_back(impl::getDiffValueNode(rhs), []() { return 0; });
+    } else {
+        edges.emplace_back(impl::getDiffValueNode(rhs), [lhs, rhs]() {
+            return std::log(lhs) * pow(lhs, rhs);
+        });
+    }
     auto node = std::make_shared<impl::Node<T>>(value, std::move(edges));
     return impl::createDiffValueFromNode(node);
 }
 
-template <typename T> DiffValue<T> square(const DiffValue<T> x) {
-    return pow(x, 2);
+template <typename T> DiffValue<T> square(const DiffValue<T> &x) {
+    return x * x;
 }
 
 template <typename T>
