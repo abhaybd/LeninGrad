@@ -135,7 +135,7 @@ DiffValue<T> pow(U lhs, const DiffValue<T> &rhs) {
 }
 
 template <typename T> DiffValue<T> square(const DiffValue<T> &x) {
-    return x * x;
+    return pow(x, 2);
 }
 
 template <typename T>

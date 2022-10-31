@@ -45,9 +45,11 @@ DerivativeResult<T> differentiate(const DiffValue<T> &value) {
         for (const impl::Edge<T> &edge : node->edges) {
             auto next = edge.to;
             DiffValue<T> intermediateDerivative = edge.derivativeFn();
-            derivativeMap.insert({next, 0});
+            auto resultPair = derivativeMap.insert({next, 0});
             derivativeMap.at(next) += intermediateDerivative * nodeDerivative;
-            fringe.push_back(next);
+            if (resultPair.second) {
+                fringe.push_back(next);
+            }
         }
     }
     return DerivativeResult<T>(derivativeMap);
