@@ -46,9 +46,11 @@ DerivativeResult<T> differentiate(const DiffValue<T> &value) {
         for (const impl::Edge<T> &edge : node->edges) {
             auto next = edge.to;
             DiffValue<T> intermediateDerivative = edge.derivativeFn();
-            derivativeMap.insert({next, 0});
+            auto resultPair = derivativeMap.insert({next, 0});
             derivativeMap.at(next) += intermediateDerivative * nodeDerivative;
-            fringe.push_back(next);
+            if (resultPair.second) {
+                fringe.push_back(next);
+            }
         }
     }
     return DerivativeResult<T>(derivativeMap);
@@ -74,16 +76,9 @@ template <typename T, typename It>
 DiffValue<T> differentiate(const DiffValue<T> &value, const It &wrtBegin,
                            const It &wrtEnd) {
     DiffValue<T> derivative = value;
-    int i = 0;
     for (auto it = wrtBegin; it != wrtEnd; it++) {
-        std::cout << "\n========== " << i++ <<"-th derivative ==========" << std::endl;
-//        impl::printComputationGraphCSV(std::cout, impl::getDiffValueNode(derivative));
-//        std::cout << std::endl;
         derivative = differentiate(derivative).wrt(*it);
     }
-//    std::cout << "\n========== " << i++ <<"-th derivative ==========\n";
-//    impl::printComputationGraphCSV(std::cout, impl::getDiffValueNode(derivative));
-//    std::cout << std::endl;
     return derivative;
 }
 

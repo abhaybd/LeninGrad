@@ -50,32 +50,6 @@ TEST_CASE("Test Higher Order Derivative", "[Derivative]") {
     }
 }
 
-TEST_CASE("foo") {
-    ddouble x = 0.1;
-    ddouble y = 10;
-    ddouble z = 2;
-    ddouble a = square(x*y*z);
-
-    ddouble b = (x*y*z)*(x*y*z);
-
-    double dadxyz = (8 * x * y * z).value();
-    // TODO: following line causes stack exhaustion. investigate?
-    // maybe there's a self loop somewhere caused by x*x line in square().
-    // now that i think about it, I think any time a same variable is used
-    // in a bifunction it fucks up. Verify this. maybe not. idk.
-    auto vars = {x,y,z};
-    auto diff = differentiate(a, vars);
-    double dadxyzCalc = diff.value();
-    double dbdxyzCalc = differentiate(b, {x,y,z}).value();
-    REQUIRE(dadxyzCalc == Approx(dadxyz));
-}
-
-TEST_CASE("foobar") {
-    ddouble x = 2;
-    ddouble y = x * x * x * x;
-    ddouble dydx3 = differentiate(y, {x, x, x});
-}
-
 TEST_CASE("Test Cross Derivative", "[Derivative]") {
 
     SECTION("Simple Polynomial") {
@@ -83,8 +57,6 @@ TEST_CASE("Test Cross Derivative", "[Derivative]") {
         ddouble y = 10;
         ddouble z = 0.5;
         ddouble a = x * y * z * z;
-
-        std::cout << "1";
 
         double dadxyz = 2 * z.value();
         REQUIRE(differentiate(a, {x, y, z}).value() == Approx(dadxyz));
@@ -109,15 +81,12 @@ TEST_CASE("Test Cross Derivative", "[Derivative]") {
         ddouble b = (x*y*z)*(x*y*z);
 
         double dadxyz = (8 * x * y * z).value();
-        // TODO: following line causes stack exhaustion. investigate?
-        // maybe there's a self loop somewhere caused by x*x line in square().
-        // now that i think about it, I think any time a same variable is used
-        // in a bifunction it fucks up. Verify this. maybe not. idk.
         auto vars = {x,y,z};
         auto diff = differentiate(a, vars);
         double dadxyzCalc = diff.value();
         double dbdxyzCalc = differentiate(b, {x,y,z}).value();
         REQUIRE(dadxyzCalc == Approx(dadxyz));
+        REQUIRE(dbdxyzCalc == Approx(dadxyz));
     }
 
 //    SECTION("Trig") {
