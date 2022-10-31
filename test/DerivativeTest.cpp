@@ -1,7 +1,6 @@
 #include <catch2/catch.hpp>
 
 #include "../src/Core.h"
-#include <iostream>
 
 using namespace leningrad;
 
