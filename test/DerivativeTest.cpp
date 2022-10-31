@@ -61,36 +61,31 @@ TEST_CASE("Test Cross Derivative", "[Derivative]") {
         double dadxyz = 2 * z.value();
         REQUIRE(differentiate(a, {x, y, z}).value() == Approx(dadxyz));
     }
-//    SECTION("Exp") {
-//        ddouble x = 3.0;
-//        ddouble y = 0.1;
-//        ddouble z = M_PI;
-//        ddouble a = exp(x * y * z);
-////        double dadxy = (exp(x * y) *(x*y + 1)).value();
-//        double dadxyz =
-//            (exp(x * y * z) * (square(x * y * z) + 3 * x * y * z + 1)).value();
-//        REQUIRE(differentiate(a, {x, y, z}).value() == Approx(dadxyz));
-//    }
-//
+
+    SECTION("Exp") {
+        ddouble x = 3.0;
+        ddouble y = 0.1;
+        ddouble z = M_PI;
+        ddouble a = exp(x * y * z);
+        double dadxyz =
+            (exp(x * y * z) * (square(x * y * z) + 3 * x * y * z + 1)).value();
+        REQUIRE(differentiate(a, {x, y, z}).value() == Approx(dadxyz));
+    }
+
     SECTION("Polynomial") {
         ddouble x = 0.1;
         ddouble y = 10;
         ddouble z = 2;
-        ddouble a = square(x*y*z);
+        ddouble a = square(x * y * z);
 
-        ddouble b = (x*y*z)*(x*y*z);
+        ddouble b = (x * y * z) * (x * y * z);
 
         double dadxyz = (8 * x * y * z).value();
-        auto vars = {x,y,z};
+        auto vars = {x, y, z};
         auto diff = differentiate(a, vars);
         double dadxyzCalc = diff.value();
-        double dbdxyzCalc = differentiate(b, {x,y,z}).value();
+        double dbdxyzCalc = differentiate(b, {x, y, z}).value();
         REQUIRE(dadxyzCalc == Approx(dadxyz));
         REQUIRE(dbdxyzCalc == Approx(dadxyz));
     }
-
-//    SECTION("Trig") {
-//        ddouble x = M_E;
-//        ddouble y = M_
-//    }
 }
